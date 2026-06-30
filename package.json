@@ -1,0 +1,21 @@
+{
+  "name": "early-leave-fairy",
+  "version": "1.0.0",
+  "description": "초코치킨의 조퇴요정",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^29.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.chocochicken.fairy",
+    "productName": "조퇴요정",
+    "win": {
+      "target": "portable"
+    }
+  }
+}
