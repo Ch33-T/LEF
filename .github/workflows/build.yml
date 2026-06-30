@@ -1,0 +1,30 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: 소스코드 가져오기
+      uses: actions/checkout@v4
+
+    - name: Node.js 설치하기
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: 변환에 필요한 재료(패키지) 설치
+      run: npm install
+
+    - name: EXE 파일 생성(빌드)
+      run: npm run build
+
+    - name: 완성된 EXE 파일 업로드
+      uses: actions/upload-artifact@v4
+      with:
+        name: 조퇴요정-실행파일
+        path: dist/*.exe
