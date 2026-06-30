@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>초코치킨의 조퇴요정(테스트)</title>
+  <style>
+    body {
+      font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+      background-color: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      color: #333;
+    }
+
+    .app-wrapper {
+      background: white;
+      padding: 25px 40px;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      max-width: 900px;
+      width: 100%;
+    }
+
+    /* 상단 네비게이션 (호봉 입력 칸 포함) */
+    .header-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    /* 중앙 정렬용 빈 공간 */
+    .spacer {
+      width: 120px;
+    }
+
+    .title-area {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .nav-btn {
+      background: none;
+      border: 1px solid #ddd;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.2s;
+      color: #555;
+    }
+
+    .nav-btn:hover {
+      background-color: #3498db;
+      color: white;
+      border-color: #3498db;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin: 0;
+      font-size: 26px;
+      min-width: 280px;
+    }
+
+    /* 호봉 입력 영역 */
+    .hobong-area {
+      width: 120px;
+      text-align: right;
+      font-size: 18px;
+      font-weight: bold;
+      color: #34495e;
+    }
+
+    #hobong-input {
+      width: 45px;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      border: 2px solid #bdc3c7;
+      border-radius: 5px;
+      padding: 2px;
+      color: #3498db;
+    }
+
+    .main-content {
+      display: flex;
+      gap: 30px;
+    }
+
+    /* 달력 영역 */
+    .calendar-container {
+      flex: 1.2;
+    }
+
+    .calendar-header {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #555;
+    }
+
+    .sun { color: #e74c3c; }
+    .sat { color: #3498db; }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+
+    .date-cell {
+      aspect-ratio: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      padding-top: 5px;
+      border-radius: 8px;
+      background-color: #fdfdfd;
+      border: 1px solid #eee;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .date-cell:not(.disabled):not(.empty):hover {
+      background-color: #e2f0fb;
+      border-color: #3498db;
+    }
+
+    .date-cell.disabled {
+      background-color: #ffeaea;
+      color: #e74c3c;
+      cursor: not-allowed;
+      font-weight: bold;
+      border-color: #ffcccc;
+    }
+
+    .holiday-label {
+      font-size: 9px;
+      font-weight: normal;
+      color: #e67e22;
+      margin-top: 2px;
+      text-align: center;
+      line-height: 1.1;
+      word-break: keep-all;
+    }
+
+    .date-cell.user-marked {
+      background-color: #34495e;
+      color: white;
+      border-color: #2c3e50;
+      font-weight: bold;
+    }
+    .date-cell.user-marked .holiday-label { color: #bdc3c7; }
+
+    .date-cell.empty {
+      background-color: transparent;
+      border: none;
+      cursor: default;
+    }
+
+    /* 우측 정보 영역 */
+    .dashboard-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .stat-box {
+      background-color: #f8f9fa;
+      padding: 15px 20px; /* 상하 여백을 살짝 줄임 */
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      border-left: 6px solid #3498db;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .highlight {
+      color: #3498db;
+      font-size: 28px;
+    }
+
+    /* 노란색 안내 박스 */
+    .info-text {
+      margin-bottom: 12px; /* 위치 조정을 위해 마진 방향 변경 */
+      font-size: 15px;
+      font-weight: bold;
+      color: #2c3e50;
+      line-height: 1.6;
+      text-align: center;
+      background-color: #fff8e1;
+      padding: 15px;
+      border-radius: 10px;
+      border: 2px dashed #f1c40f;
+    }
+    
+    /* 수당 표시 박스 */
+    .allowance-box {
+      background-color: #f1f8ff;
+      padding: 15px 20px;
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: bold;
+      border-left: 6px solid #2ecc71; /* 수당은 초록색 포인트 */
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      color: #333;
+    }
+    
+    .allowance-highlight {
+      color: #2ecc71;
+      font-size: 26px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-wrapper">
+  <div class="header-nav">
+    <div class="spacer"></div>
+    <div class="title-area">
+      <button class="nav-btn" onclick="changeMonth(-1)">◀</button>
+      <h1 id="month-title">XXXX년 XX월의 조퇴요정(테스트)</h1>
+      <button class="nav-btn" onclick="changeMonth(1)">▶</button>
+    </div>
+    <div class="hobong-area">
+      <input type="number" id="hobong-input" min="1" max="50" value="10"> 호봉
+    </div>
+  </div>
+  
+  <div class="main-content">
+    <div class="calendar-container">
+      <div class="calendar-header">
+        <div class="day-name sun">일</div>
+        <div class="day-name">월</div>
+        <div class="day-name">화</div>
+        <div class="day-name">수</div>
+        <div class="day-name">목</div>
+        <div class="day-name">금</div>
+        <div class="day-name sat">토</div>
+      </div>
+      <div id="calendar-grid" class="calendar-grid"></div>
+    </div>
+    
+    <div class="dashboard-container">
+      <div class="stat-box">
+        근무일 수 : <span id="working-days" class="highlight">0</span>일
+      </div>
+      <div class="stat-box">
+        조퇴일 수 : <span id="early-leave-days" class="highlight">0</span>일
+      </div>
+      <div class="info-text">
+        달력에 표시되지 않은 공휴일 및 재량휴업일,<br>
+        방학 및 조퇴한 날은 클릭하여 표시
+      </div>
+      <div class="allowance-box" id="allowance-display">
+        수당 : <span class="allowance-highlight">0</span>원 / 0원
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const holidaysData = {
+  '2026-07-17': '제헌절', '2026-08-17': '대체공휴일', '2026-09-24': '추석 연휴', '2026-09-25': '추석 연휴',
+  '2026-10-05': '대체공휴일', '2026-10-09': '한글날', '2026-12-25': '성탄절',
+  '2027-01-01': '신정', '2027-02-08': '설 연휴', '2027-02-09': '대체공휴일', '2027-03-01': '삼일절',
+  '2027-05-03': '대체공휴일', '2027-05-05': '어린이날', '2027-05-13': '부처님오신날',
+  '2027-07-19': '대체공휴일', '2027-08-16': '대체공휴일', '2027-09-14': '추석 연휴',
+  '2027-09-15': '추석 연휴', '2027-09-16': '추석 연휴', '2027-10-04': '대체공휴일',
+  '2027-10-11': '대체공휴일', '2027-12-27': '대체공휴일'
+};
+
+let viewDate = new Date();
+let userMarkedDates = JSON.parse(localStorage.getItem('earlyLeaveFairyDates')) || [];
+let userHobong = parseInt(localStorage.getItem('earlyLeaveFairyHobong')) || 10;
+
+document.getElementById('hobong-input').value = userHobong;
+
+// 호봉 숫자가 바뀔 때마다 저장하고 다시 계산
+document.getElementById('hobong-input').addEventListener('input', function(e) {
+  let val = parseInt(e.target.value);
+  if(isNaN(val) || val < 1) val = 1;
+  userHobong = val;
+  localStorage.setItem('earlyLeaveFairyHobong', userHobong);
+  updateDashboard(viewDate.getFullYear(), viewDate.getMonth() + 1);
+});
+
+function formatDate(year, month, day) {
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+function init() {
+  renderApp();
+}
+
+function changeMonth(delta) {
+  viewDate.setMonth(viewDate.getMonth() + delta);
+  renderApp();
+}
+
+function renderApp() {
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth() + 1;
+  
+  document.getElementById('month-title').textContent = `${year}년 ${month}월의 조퇴요정(테스트)`;
+  
+  renderCalendar(year, month);
+  updateDashboard(year, month);
+}
+
+function renderCalendar(year, month) {
+  const grid = document.getElementById('calendar-grid');
+  grid.innerHTML = '';
+  
+  const firstDay = new Date(year, month - 1, 1).getDay();
+  const lastDate = new Date(year, month, 0).getDate();
+
+  for (let i = 0; i < firstDay; i++) {
+    const emptyCell = document.createElement('div');
+    emptyCell.className = 'date-cell empty';
+    grid.appendChild(emptyCell);
+  }
+
+  for (let day = 1; day <= lastDate; day++) {
+    const cell = document.createElement('div');
+    cell.className = 'date-cell';
+    cell.innerHTML = `<span>${day}</span>`;
+    
+    const dateStr = formatDate(year, month, day);
+    const dayOfWeek = new Date(year, month - 1, day).getDay();
+    
+    const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+    const holidayName = holidaysData[dateStr];
+
+    if (isWeekend || holidayName) {
+      cell.classList.add('disabled');
+      if (holidayName) {
+        const label = document.createElement('div');
+        label.className = 'holiday-label';
+        label.textContent = holidayName;
+        cell.appendChild(label);
+      }
+    } else {
+      if (userMarkedDates.includes(dateStr)) {
+        cell.classList.add('user-marked');
+      }
+      cell.addEventListener('click', () => toggleDate(dateStr, cell));
+    }
+    
+    grid.appendChild(cell);
+  }
+}
+
+function toggleDate(dateStr, cell) {
+  if (userMarkedDates.includes(dateStr)) {
+    userMarkedDates = userMarkedDates.filter(d => d !== dateStr);
+    cell.classList.remove('user-marked');
+  } else {
+    userMarkedDates.push(dateStr);
+    cell.classList.add('user-marked');
+  }
+  localStorage.setItem('earlyLeaveFairyDates', JSON.stringify(userMarkedDates));
+  
+  const y = viewDate.getFullYear();
+  const m = viewDate.getMonth() + 1;
+  updateDashboard(y, m);
+}
+
+function updateDashboard(year, month) {
+  const lastDate = new Date(year, month, 0).getDate();
+  let offDays = 0;
+
+  for (let day = 1; day <= lastDate; day++) {
+    const dateStr = formatDate(year, month, day);
+    const dayOfWeek = new Date(year, month - 1, day).getDay();
+    const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+    const isHoliday = !!holidaysData[dateStr];
+    const isUserMarked = userMarkedDates.includes(dateStr);
+
+    if (isWeekend || isHoliday || isUserMarked) {
+      offDays++;
+    }
+  }
+
+  // 근무일, 조퇴일 계산
+  const workingDays = lastDate - offDays;
+  const earlyLeaveDays = Math.max(0, workingDays - 15);
+
+  document.getElementById('working-days').textContent = workingDays;
+  document.getElementById('early-leave-days').textContent = earlyLeaveDays;
+
+  // 수당(YY) 계산
+  let YY = 0;
+  if (userHobong <= 19) {
+    YY = 127950;
+  } else if (userHobong <= 29) {
+    YY = 142130;
+  } else {
+    YY = 152580;
+  }
+
+  // 수당(XX) 계산 (근무일수는 최대 15로 제한)
+  const calcWorkingDays = Math.min(workingDays, 15);
+  const XX = Math.floor(YY * (calcWorkingDays / 15));
+
+  // 화면 출력 (toLocaleString()으로 천단위 콤마 찍기)
+  document.getElementById('allowance-display').innerHTML = 
+    `수당 : <span class="allowance-highlight">${XX.toLocaleString()}</span>원 / ${YY.toLocaleString()}원`;
+}
+
+init();
+</script>
+
+</body>
+</html>
